@@ -193,6 +193,39 @@ export const useCurriculoForm = () => {
   };
 
   /**
+   * Gera PDF final sem preview (sem watermark, sem roxo)
+   */
+  const handleGerarPDFFinal = async () => {
+    try {
+      setLoading(true);
+      setError('');
+
+      // Preparar dados para o PDF
+      const dadosCompletos = {
+        dadosPessoais,
+        competencias,
+        experiencias,
+        formacoes,
+      };
+
+      // Gerar PDF final (isPreview = false)
+      const { gerarPDFLocal, downloadPDF } = await import('./services');
+      const pdfBlob = await gerarPDFLocal(dadosCompletos, false);
+      
+      // Fazer download
+      const filename = `curriculo-${dadosPessoais.nome?.replace(/\s+/g, '-').toLowerCase() || 'usuario'}.pdf`;
+      downloadPDF(pdfBlob, filename);
+      
+      setSuccess('Currículo final gerado e baixado com sucesso!');
+    } catch (err) {
+      setError(err.message || 'Erro ao gerar currículo');
+      console.error('Erro:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
    * Limpa mensagens de erro e sucesso
    */
   const clearMessages = () => {
@@ -218,6 +251,7 @@ export const useCurriculoForm = () => {
     handleAdicionarExperiencia,
     handleAdicionarFormacao,
     handleGerarPDF,
+    handleGerarPDFFinal,
     handleVisualizarPDF,
     clearMessages,
   };

@@ -23,6 +23,7 @@ export default function CurriculoForm() {
     handleAdicionarFormacao,
     handleVisualizarPDF,
     handleGerarPDF,
+    handleGerarPDFFinal,
   } = useCurriculoForm();
 
   // Estados locais para formulários
@@ -169,31 +170,11 @@ export default function CurriculoForm() {
       </section>
       {/* Seção para dados de competências */}
       <section className={sectionClass}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl text-[#8E51FF]">
-              <CgNotes />
-            </div>
-            <h2 className="text-3xl font-bold text-[#8E51FF]">Competências</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="text-3xl text-[#8E51FF]">
+            <CgNotes />
           </div>
-          <button 
-            onClick={() => {
-              if (competenciaForm.nome_competencia) {
-                handleAdicionarCompetencia(competenciaForm);
-                setCompetenciaForm({
-                  nome_competencia: '',
-                  categoria: '',
-                  nivel_proficiencia: '',
-                  descricao: '',
-                });
-              } else {
-                alert('Por favor, preencha pelo menos o nome da competência!');
-              }
-            }}
-            className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors font-semibold"
-          >
-            + Adicionar
-          </button>
+          <h2 className="text-3xl font-bold text-[#8E51FF]">Competências</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-4">
@@ -242,6 +223,26 @@ export default function CurriculoForm() {
           />
         </div>
 
+        {/* Botão Adicionar */}
+        <button 
+          onClick={() => {
+            if (competenciaForm.nome_competencia) {
+              handleAdicionarCompetencia(competenciaForm);
+              setCompetenciaForm({
+                nome_competencia: '',
+                categoria: '',
+                nivel_proficiencia: '',
+                descricao: '',
+              });
+            } else {
+              alert('Por favor, preencha pelo menos o nome da competência!');
+            }
+          }}
+          className="w-full bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors font-semibold mb-4"
+        >
+          + Adicionar
+        </button>
+
         {/* Lista de competências adicionadas */}
         {competencias.length > 0 && (
           <div className="mt-4 space-y-2">
@@ -258,34 +259,11 @@ export default function CurriculoForm() {
       </section>
       {/* Seção para dados de experiências */}
       <section className={sectionClass}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl text-[#8E51FF] ">
-              <FaUserGraduate />
-            </div>
-            <h2 className="text-2xl font-bold text-[#8E51FF] ">Experiências</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="text-3xl text-[#8E51FF] ">
+            <FaUserGraduate />
           </div>
-          <button 
-            onClick={() => {
-              if (experienciaForm.titulo_cargo && experienciaForm.empresa) {
-                handleAdicionarExperiencia(experienciaForm);
-                setExperienciaForm({
-                  titulo_cargo: '',
-                  empresa: '',
-                  localidade: '',
-                  data_inicio: '',
-                  data_fim: '',
-                  atual: false,
-                  sobre: '',
-                });
-              } else {
-                alert('Por favor, preencha pelo menos o cargo e a empresa!');
-              }
-            }}
-            className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors font-semibold"
-          >
-            + Adicionar
-          </button>
+          <h2 className="text-2xl font-bold text-[#8E51FF] ">Experiências</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4">
@@ -364,6 +342,29 @@ export default function CurriculoForm() {
           />
         </div>
 
+        {/* Botão Adicionar */}
+        <button 
+          onClick={() => {
+            if (experienciaForm.titulo_cargo && experienciaForm.empresa) {
+              handleAdicionarExperiencia(experienciaForm);
+              setExperienciaForm({
+                titulo_cargo: '',
+                empresa: '',
+                localidade: '',
+                data_inicio: '',
+                data_fim: '',
+                atual: false,
+                sobre: '',
+              });
+            } else {
+              alert('Por favor, preencha pelo menos o cargo e a empresa!');
+            }
+          }}
+          className="w-full bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors font-semibold mb-4"
+        >
+          + Adicionar
+        </button>
+
         {/* Lista de experiências adicionadas */}
         {experiencias.length > 0 && (
           <div className="mt-4 space-y-2">
@@ -381,33 +382,11 @@ export default function CurriculoForm() {
 
       {/* Seção para Formação Acadêmica */}
       <section className={sectionClass}>
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="text-3xl text-[#8E51FF]">
-              <FaUserGraduate />
-            </div>
-            <h2 className="text-2xl font-bold text-[#8E51FF]">Formação Acadêmica</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="text-3xl text-[#8E51FF]">
+            <FaUserGraduate />
           </div>
-          <button 
-            onClick={() => {
-              if (formacaoForm.curso && formacaoForm.instituicao) {
-                handleAdicionarFormacao(formacaoForm);
-                setFormacaoForm({
-                  curso: '',
-                  instituicao: '',
-                  nivel: '',
-                  data_inicio: '',
-                  data_conclusao: '',
-                  cursando: false,
-                });
-              } else {
-                alert('Por favor, preencha pelo menos o curso e a instituição!');
-              }
-            }}
-            className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors font-semibold"
-          >
-            + Adicionar
-          </button>
+          <h2 className="text-2xl font-bold text-[#8E51FF]">Formação Acadêmica</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center mb-4">
@@ -486,6 +465,28 @@ export default function CurriculoForm() {
           </div>
         </div>
 
+        {/* Botão Adicionar */}
+        <button 
+          onClick={() => {
+            if (formacaoForm.curso && formacaoForm.instituicao) {
+              handleAdicionarFormacao(formacaoForm);
+              setFormacaoForm({
+                curso: '',
+                instituicao: '',
+                nivel: '',
+                data_inicio: '',
+                data_conclusao: '',
+                cursando: false,
+              });
+            } else {
+              alert('Por favor, preencha pelo menos o curso e a instituição!');
+            }
+          }}
+          className="w-full bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 transition-colors font-semibold mb-4"
+        >
+          + Adicionar
+        </button>
+
         {/* Lista de formações adicionadas */}
         {formacoes.length > 0 && (
           <div className="mt-4 space-y-2">
@@ -520,17 +521,31 @@ export default function CurriculoForm() {
       </div>
 
       {/* Botões de ação - Download só aparece se pagou */}
-      <div className="flex justify-center mb-12">
-        {pagamentoAtivo ? (
+      <div className="flex gap-4 justify-center mb-12">
+        {/* Botão de PDF Final: Invisível e inacessível (preservando lógica para uso futuro em outra página) */}
+        <button 
+          onClick={handleGerarPDFFinal}
+          disabled={loading || verificandoPagamento}
+          className="hidden"
+          aria-hidden="true"
+          tabIndex="-1"
+        >
+          <FaFilePdf />
+          {loading ? 'Gerando...' : 'Baixar PDF Final'}
+        </button>
+
+        {pagamentoAtivo && (
           <button 
             onClick={handleGerarPDF}
             disabled={loading || verificandoPagamento}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300"
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300"
           >
             <FaFilePdf />
-            {loading ? 'Gerando...' : 'Baixar Currículo PDF'}
+            {loading ? 'Gerando...' : 'Visualizar PDF'}
           </button>
-        ) : (
+        )}
+
+        {!pagamentoAtivo && (
           <button 
             onClick={() => window.location.href = '/pagamento'}
             className="flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-8 rounded-xl transition-colors duration-300"

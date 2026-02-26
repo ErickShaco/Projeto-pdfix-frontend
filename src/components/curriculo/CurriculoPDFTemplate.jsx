@@ -1,14 +1,17 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 
-// Estilos para o PDF
-const styles = StyleSheet.create({
+/**
+ * Gera estilos condicionais baseado se é preview ou não
+ */
+const getStyles = (isPreview = false) => StyleSheet.create({
   page: {
-    padding: 40,
-    fontSize: 11,
+    padding: 45,
+    fontSize: 10.5,
     fontFamily: 'Helvetica',
     backgroundColor: '#ffffff',
     position: 'relative',
+    lineHeight: 1.5,
   },
   watermark: {
     position: 'absolute',
@@ -29,84 +32,138 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     padding: 10,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
   },
+  // ===== HEADER SECTION =====
   header: {
     marginBottom: 20,
-    borderBottom: '2px solid #8b5cf6',
-    paddingBottom: 10,
+    borderBottom: isPreview ? '2px solid #8b5cf6' : '2px solid #e5e7eb',
+    paddingBottom: 15,
+    textAlign: 'center',
   },
   name: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 5,
+    color: '#1a202c',
+    marginBottom: 8,
+    letterSpacing: 0.8,
+    textAlign: 'center',
   },
   contactInfo: {
     fontSize: 10,
     color: '#6b7280',
-    marginTop: 5,
+    marginTop: 12,
+    lineHeight: 1.7,
+    textAlign: 'center',
   },
+  contactLine: {
+    fontSize: 10,
+    color: '#6b7280',
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  // ===== SECTIONS =====
   section: {
-    marginTop: 15,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 14,
+    pageBreakInside: 'avoid',
+  },
+  sectionTitleContainer: {
+    backgroundColor: isPreview ? '#8b5cf6' : '#e5e7eb',
+    padding: '8 12',
+    marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
-    color: '#8b5cf6',
-    marginBottom: 8,
-    borderBottom: '1px solid #e5e7eb',
-    paddingBottom: 4,
+    color: isPreview ? '#ffffff' : '#1a202c',
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
+  // ===== COMPETÊNCIAS =====
+  competenciaItem: {
+    marginBottom: 11,
+    paddingBottom: 9,
+    borderBottom: '0.5px solid #f0f0f0',
+    pageBreakInside: 'avoid',
+  },
+  competenciaNome: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1a202c',
+    marginBottom: 3,
+  },
+  competenciaCategoria: {
+    fontSize: 9,
+    color: isPreview ? '#8b5cf6' : '#6b7280',
+    marginBottom: 2,
+    fontWeight: '500',
+  },
+  competenciaNivel: {
+    fontSize: 9,
+    color: '#6b7280',
+    marginBottom: 2,
+  },
+  competenciaDescricao: {
+    fontSize: 10,
+    color: '#4b5563',
+    lineHeight: 1.5,
+    marginTop: 3,
+  },
+  // ===== ITENS (Experiência e Formação) =====
   itemContainer: {
-    marginBottom: 10,
+    marginBottom: 13,
+    paddingBottom: 9,
+    borderBottom: '0.5px solid #f0f0f0',
+    pageBreakInside: 'avoid',
   },
   itemTitle: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#1f2937',
+    fontWeight: '600',
+    color: '#1a202c',
     marginBottom: 3,
   },
   itemSubtitle: {
     fontSize: 10,
     color: '#6b7280',
-    marginBottom: 2,
+    marginBottom: 4,
+    fontWeight: '500',
   },
   itemDate: {
     fontSize: 9,
     color: '#9ca3af',
     fontStyle: 'italic',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   itemDescription: {
     fontSize: 10,
     color: '#4b5563',
-    lineHeight: 1.4,
+    lineHeight: 1.6,
+    marginTop: 4,
   },
-  competenciaItem: {
+  // ===== LISTAS/BULLETS =====
+  bulletList: {
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  bulletItem: {
+    fontSize: 10,
+    color: '#4b5563',
+    lineHeight: 1.5,
     marginBottom: 6,
+    marginLeft: 15,
   },
-  competenciaNome: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#1f2937',
+  bulletPoint: {
+    fontSize: 10,
+    color: '#4b5563',
   },
-  competenciaCategoria: {
-    fontSize: 9,
-    color: '#8b5cf6',
-    marginBottom: 2,
-  },
-  competenciaNivel: {
-    fontSize: 9,
-    color: '#6b7280',
-  },
+  // ===== FOOTER =====
   footer: {
     position: 'absolute',
-    bottom: 30,
-    left: 40,
-    right: 40,
+    bottom: 25,
+    left: 45,
+    right: 45,
     textAlign: 'center',
     fontSize: 8,
     color: '#9ca3af',
@@ -115,94 +172,98 @@ const styles = StyleSheet.create({
   },
 });
 
+// Função helper para gerar estilos baseado em isPreview
+const styles = getStyles();
+
 /**
  * Template de PDF para o currículo
  */
 export const CurriculoPDFTemplate = ({ dados, isPreview = false }) => {
-  // Debug: Verificar dados recebidos
-  console.log('=== DEBUG PDF TEMPLATE ===');
-  console.log('Dados completos recebidos:', dados);
-  console.log('isPreview:', isPreview);
+  // Gerar estilos baseado em isPreview
+  const dynamicStyles = getStyles(isPreview);
   
   const { dadosPessoais, competencias, experiencias, formacoes } = dados;
-
-  console.log('Dados pessoais:', dadosPessoais);
-  console.log('Competencias:', competencias);
-  console.log('Experiencias:', experiencias);
-  console.log('Formacoes:', formacoes);
 
   // No preview, mostrar TODOS os dados preenchidos
   const competenciasExibir = competencias || [];
   const experienciasExibir = experiencias || [];
   const formacoesExibir = formacoes || [];
 
-  console.log('Arrays para exibir:');
-  console.log('- Competencias:', competenciasExibir.length);
-  console.log('- Experiencias:', experienciasExibir.length);
-  console.log('- Formacoes:', formacoesExibir.length);
-
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" style={dynamicStyles.page}>
         {/* Banner de preview */}
         {isPreview && (
-          <View style={styles.previewBanner} fixed>
-            <Text> PRÉVIA - Faça o pagamento para desbloquear o currículo completo</Text>
+          <View style={dynamicStyles.previewBanner} fixed>
+            <Text>PRÉVIA - Faça o pagamento para desbloquear o currículo completo</Text>
           </View>
         )}
 
         {/* Marca d'água */}
         {isPreview && (
-          <View style={styles.watermark} fixed>
+          <View style={dynamicStyles.watermark} fixed>
             <Text>PREVIEW</Text>
           </View>
         )}
 
         {/* Header com dados pessoais */}
-        <View style={[styles.header, isPreview && { marginTop: 30 }]}>
-          <Text style={styles.name}>
+        <View style={[dynamicStyles.header, isPreview && { marginTop: 30 }]}>
+          <Text style={dynamicStyles.name}>
             {dadosPessoais?.nome || 'Nome'}
           </Text>
-          <View style={styles.contactInfo}>
+          <View style={dynamicStyles.contactInfo}>
+            {/* Linha 1: Localidade + Telefone */}
+            {(dadosPessoais?.endereco || dadosPessoais?.telefone) && (
+              <Text style={dynamicStyles.contactLine}>
+                {dadosPessoais?.endereco || ''}
+                {dadosPessoais?.endereco && dadosPessoais?.telefone ? ' | ' : ''}
+                {dadosPessoais?.telefone || ''}
+              </Text>
+            )}
+            
+            {/* Linha 2: Email */}
             {dadosPessoais?.email && (
-              <Text>Email: {dadosPessoais.email}</Text>
+              <Text style={dynamicStyles.contactLine}>
+                {dadosPessoais.email}
+              </Text>
             )}
-            {dadosPessoais?.telefone && (
-              <Text>Telefone: {dadosPessoais.telefone}</Text>
-            )}
-            {dadosPessoais?.endereco && (
-              <Text>Endereco: {dadosPessoais.endereco}</Text>
-            )}
-            {dadosPessoais?.idade && (
-              <Text>Idade: {dadosPessoais.idade} anos</Text>
-            )}
-            {dadosPessoais?.linkedin_url && (
-              <Text>LinkedIn: {dadosPessoais.linkedin_url}</Text>
+            
+            {/* Linha 3: LinkedIn + URLs */}
+            {(dadosPessoais?.linkedin_url || dadosPessoais?.idade) && (
+              <Text style={dynamicStyles.contactLine}>
+                {dadosPessoais?.linkedin_url || ''}
+                {dadosPessoais?.linkedin_url && dadosPessoais?.idade ? ' | ' : ''}
+                {dadosPessoais?.idade ? `${dadosPessoais.idade} anos` : ''}
+              </Text>
             )}
           </View>
         </View>
 
         {/* Seção de Competências */}
         {competenciasExibir && competenciasExibir.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>COMPETENCIAS</Text>
+          <View style={dynamicStyles.section}>
+            <View style={dynamicStyles.sectionTitleContainer}>
+              <Text style={dynamicStyles.sectionTitle}>COMPETÊNCIAS</Text>
+            </View>
             {competenciasExibir.map((comp, index) => (
-              <View key={index} style={styles.competenciaItem}>
-                <Text style={styles.competenciaNome}>
-                  {comp.nome_competencia || 'Competencia'}
+              <View key={index} style={dynamicStyles.competenciaItem}>
+                <Text style={dynamicStyles.competenciaNome}>
+                  {comp.nome_competencia || 'Competência'}
                 </Text>
                 {comp.categoria && (
-                  <Text style={styles.competenciaCategoria}>
-                    Categoria: {comp.categoria}
+                  <Text style={dynamicStyles.competenciaCategoria}>
+                    {comp.categoria}
                   </Text>
                 )}
                 {comp.nivel_proficiencia && (
-                  <Text style={styles.competenciaNivel}>
-                    Nivel: {comp.nivel_proficiencia}
+                  <Text style={dynamicStyles.competenciaNivel}>
+                    Nível: {comp.nivel_proficiencia}
                   </Text>
                 )}
                 {comp.descricao && (
-                  <Text style={styles.itemDescription}>{comp.descricao}</Text>
+                  <Text style={dynamicStyles.competenciaDescricao}>
+                    {comp.descricao}
+                  </Text>
                 )}
               </View>
             ))}
@@ -211,25 +272,28 @@ export const CurriculoPDFTemplate = ({ dados, isPreview = false }) => {
 
         {/* Seção de Experiências Profissionais */}
         {experienciasExibir && experienciasExibir.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>EXPERIENCIA PROFISSIONAL</Text>
+          <View style={dynamicStyles.section}>
+            <View style={dynamicStyles.sectionTitleContainer}>
+              <Text style={dynamicStyles.sectionTitle}>EXPERIÊNCIA PROFISSIONAL</Text>
+            </View>
             {experienciasExibir.map((exp, index) => (
-              <View key={index} style={styles.itemContainer}>
-                <Text style={styles.itemTitle}>
+              <View key={index} style={dynamicStyles.itemContainer}>
+                <Text style={dynamicStyles.itemTitle}>
                   {exp.titulo_cargo || 'Cargo'}
                 </Text>
-                <Text style={styles.itemSubtitle}>
-                  {exp.empresa || 'Empresa'}{exp.localidade ? ` - ${exp.localidade}` : ''}
+                <Text style={dynamicStyles.itemSubtitle}>
+                  {exp.empresa || 'Empresa'}
+                  {exp.localidade ? ` • ${exp.localidade}` : ''}
                 </Text>
-                <Text style={styles.itemDate}>
+                <Text style={dynamicStyles.itemDate}>
                   {exp.data_inicio ? new Date(exp.data_inicio).toLocaleDateString('pt-BR') : ''}
-                  {exp.data_inicio && ' - '}
+                  {exp.data_inicio && ' — '}
                   {exp.atual 
-                    ? 'Atual' 
+                    ? 'Atualmente' 
                     : exp.data_fim ? new Date(exp.data_fim).toLocaleDateString('pt-BR') : ''}
                 </Text>
                 {exp.sobre && (
-                  <Text style={styles.itemDescription}>{exp.sobre}</Text>
+                  <Text style={dynamicStyles.itemDescription}>{exp.sobre}</Text>
                 )}
               </View>
             ))}
@@ -238,19 +302,22 @@ export const CurriculoPDFTemplate = ({ dados, isPreview = false }) => {
 
         {/* Seção de Formação Acadêmica */}
         {formacoesExibir && formacoesExibir.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>FORMACAO ACADEMICA</Text>
+          <View style={dynamicStyles.section}>
+            <View style={dynamicStyles.sectionTitleContainer}>
+              <Text style={dynamicStyles.sectionTitle}>FORMAÇÃO ACADÊMICA</Text>
+            </View>
             {formacoesExibir.map((form, index) => (
-              <View key={index} style={styles.itemContainer}>
-                <Text style={styles.itemTitle}>
+              <View key={index} style={dynamicStyles.itemContainer}>
+                <Text style={dynamicStyles.itemTitle}>
                   {form.curso || 'Curso'}
                 </Text>
-                <Text style={styles.itemSubtitle}>
-                  {form.instituicao || 'Instituicao'}{form.nivel ? ` - ${form.nivel}` : ''}
+                <Text style={dynamicStyles.itemSubtitle}>
+                  {form.instituicao || 'Instituição'}
+                  {form.nivel ? ` • ${form.nivel}` : ''}
                 </Text>
-                <Text style={styles.itemDate}>
+                <Text style={dynamicStyles.itemDate}>
                   {form.data_inicio ? new Date(form.data_inicio).toLocaleDateString('pt-BR') : ''}
-                  {form.data_inicio && ' - '}
+                  {form.data_inicio && ' — '}
                   {form.cursando 
                     ? 'Cursando' 
                     : form.data_conclusao ? new Date(form.data_conclusao).toLocaleDateString('pt-BR') : ''}
@@ -261,7 +328,7 @@ export const CurriculoPDFTemplate = ({ dados, isPreview = false }) => {
         )}
 
         {/* Footer */}
-        <Text style={styles.footer}>
+        <Text style={dynamicStyles.footer}>
           Currículo gerado por PDFix • {new Date().toLocaleDateString('pt-BR')}
         </Text>
       </Page>
