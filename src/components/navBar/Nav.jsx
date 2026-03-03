@@ -38,7 +38,7 @@ export default function Nav() {
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
-    window.location.href = "/";
+    window.location.href = "/"
   };
 
   return (
