@@ -56,11 +56,11 @@ export default function TesteAPIPage() {
       addLog(`✅ Dados Pessoais criados: ${JSON.stringify(dadosPessoais.data, null, 2)}`, 'success');
     } catch (error) {
       addLog(`❌ Erro ao criar dados pessoais: ${error.response?.data?.mensagem || error.message}`, 'error');
+    }
+
     addLog('-----------------------------------', 'info');
 
-    // Teste 4: Listar Competências
-    try {
-      addLog('📋 Teste 4: Listar Competências...', 'info');
+    // Teste 2: Buscar Dados Pessoais
     try {
       addLog('📋 Teste 2: Buscar Dados Pessoais...', 'info');
       const dadosPessoais = await dadosPessoaisAPI.buscarPorUsuario(localStorage.getItem('usuario_id'));
@@ -88,9 +88,9 @@ export default function TesteAPIPage() {
 
     addLog('-----------------------------------', 'info');
 
-    // Teste 2: Listar Competências
+    // Teste 4: Listar Competências
     try {
-      addLog('📋 Teste 2: Listar Competências...', 'info');
+      addLog('📋 Teste 4: Listar Competências...', 'info');
       const competencias = await competenciasAPI.listar();
       addLog(`✅ Total de competências: ${competencias.data?.length || 0}`, 'success');
       addLog(`📊 Dados: ${JSON.stringify(competencias.data, null, 2)}`, 'info');
