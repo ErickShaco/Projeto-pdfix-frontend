@@ -3,6 +3,8 @@ import "./globals.css";
 import Nav from "../components/navBar/Nav";
 import Footer from "../components/footer/Footer";
 
+export const dynamic = 'force-dynamic';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
