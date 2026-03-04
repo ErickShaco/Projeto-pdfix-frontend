@@ -516,7 +516,7 @@ export default function CurriculoForm() {
         <p className="text-xs text-[var(--color-text-light)] dark:text-gray-300 text-center mt-2">
           {pagamentoAtivo 
             ? 'Visualize uma prévia do seu currículo antes de baixar' 
-            : '⚠️ Visualização limitada - Faça o pagamento para acesso completo'}
+            : ' Visualização limitada - Faça o pagamento para acesso completo'}
         </p>
       </div>
 
