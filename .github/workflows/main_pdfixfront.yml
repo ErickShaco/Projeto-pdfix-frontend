@@ -68,10 +68,4 @@ jobs:
           app-name: 'pdfixFront'
           slot-name: 'Production'
           package: .
-      
-      - name: 'Install dependencies and start'
-        run: |
-          cd /home/site/wwwroot
-          npm install --legacy-peer-deps
-          npm start
           
