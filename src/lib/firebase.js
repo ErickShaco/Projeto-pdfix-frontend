@@ -8,7 +8,28 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
+let app;
+let auth;
 
-export const auth = getAuth(app);
+// Only initialize Firebase on the client side
+if (typeof window !== 'undefined') {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+}
+
+export const getFirebaseApp = () => {
+  if (!app) {
+    app = initializeApp(firebaseConfig);
+  }
+  return app;
+};
+
+export const getFirebaseAuth = () => {
+  if (!auth) {
+    const appInstance = getFirebaseApp();
+    auth = getAuth(appInstance);
+  }
+  return auth;
+};
+
 export const googleProvider = new GoogleAuthProvider();

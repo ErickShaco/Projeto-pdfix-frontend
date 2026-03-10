@@ -1,4 +1,11 @@
-import CurriculoForm from "../../components/curriculo/CurriculoForm";
+'use client';
+
+import dynamic from 'next/dynamic';
+
+const CurriculoForm = dynamic(
+  () => import("../../components/curriculo/CurriculoForm"),
+  { ssr: false }
+);
 
 export default function CurriculoPage() {
   return (

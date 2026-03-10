@@ -1,5 +1,5 @@
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { getFirebaseAuth, googleProvider } from '@/lib/firebase';
 
 /**
  * Realiza login com Google
@@ -7,6 +7,7 @@ import { auth, googleProvider } from '@/lib/firebase';
  */
 export const loginWithGoogle = async () => {
   try {
+    const auth = getFirebaseAuth();
     const result = await signInWithPopup(auth, googleProvider);
     return result;
   } catch (error) {
@@ -31,6 +32,7 @@ export const loginWithGoogle = async () => {
  */
 export const logout = async () => {
   try {
+    const auth = getFirebaseAuth();
     await auth.signOut();
     localStorage.removeItem('usuario_id');
     localStorage.removeItem('user_email');
@@ -48,6 +50,7 @@ export const logout = async () => {
  */
 export const getCurrentUser = () => {
   return new Promise((resolve) => {
+    const auth = getFirebaseAuth();
     const unsubscribe = auth.onAuthStateChanged((user) => {
       unsubscribe();
       resolve(user);

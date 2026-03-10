@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { auth } from "@/lib/firebase";
+import { getFirebaseAuth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Link from "next/link";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
@@ -13,6 +13,7 @@ export default function Nav() {
   const menuRef = useRef(null);
 
   useEffect(() => {
+    const auth = getFirebaseAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setImageError(false); // Reset erro ao trocar usuário
@@ -38,6 +39,7 @@ export default function Nav() {
   }, [menuOpen]);
 
   const handleLogout = async () => {
+    const auth = getFirebaseAuth();
     await signOut(auth);
     setUser(null);
     window.location.href = "/"
