@@ -9,11 +9,13 @@ import ThemeToggle from "../ThemeToggle/ThemeToggle";
 export default function Nav() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setImageError(false); // Reset erro ao trocar usuário
     });
     return () => unsubscribe();
   }, []);
@@ -74,13 +76,21 @@ export default function Nav() {
                 onClick={() => setMenuOpen((open) => !open)}
                 style={{ background: "none", border: "none" }}
               >
-                {user.photoURL ? (
+                {user.photoURL && !imageError ? (
                   <img
-                    src={user.photoURL}
+                    src={`${user.photoURL}?t=${Date.now()}`}
                     alt="Foto do perfil"
                     className="w-10 h-10 cursor-pointer rounded-full object-cover border-2 border-violet-600"
+                    onError={() => setImageError(true)}
+                    loading="lazy"
                   />
+                ) : user.displayName ? (
+                  // Avatar com iniciais do nome
+                  <div className="w-10 h-10 rounded-full border-2 border-violet-600 flex items-center justify-center bg-violet-100 dark:bg-violet-900 font-bold text-violet-600 dark:text-violet-300 text-sm">
+                    {user.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                  </div>
                 ) : (
+                  // Ícone padrão
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 1115 0v.75a.75.75 0 01-.75.75h-13.5a.75.75 0 01-.75-.75v-.75z" />
                   </svg>

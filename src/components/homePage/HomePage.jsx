@@ -165,7 +165,7 @@ export default function HomePage() {
               ["04", "Envie", "Baixe e compartilhe"],
             ].map(([num, title, desc]) => (
               <div key={num} className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold shadow-md">
+                <div className="w-14 h-14 rounded-full bg-violet-600 flex items-center justify-center font-bold shadow-md" style={{ color: '#ffffff' }}>
                   {num}
                 </div>
                 <div
@@ -194,7 +194,7 @@ export default function HomePage() {
           </div>
           <div className="mt-20">
             <Link
-              className="bg-white text-violet-600 dark:!text-violet-600 px-6 py-3 rounded-full shadow font-bold hover:bg-violet-100 hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="bg-white text-violet-600 dark:text-white px-6 py-3 rounded-full shadow font-bold hover:bg-violet-100 hover:!text-white hover:shadow-lg hover:scale-105 transition-all duration-300"
               href="/curriculo"
               style={{ color: '#8b5cf6' }}
             >
