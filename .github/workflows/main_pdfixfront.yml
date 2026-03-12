@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,33 +30,6 @@ jobs:
       - name: Build Next.js application
         run: npm run build
 
-      - name: Verify standalone output
-        run: ls -la .next/standalone/
-
-      - name: Prepare standalone output
-        run: |
-          cp -r public .next/standalone/public
-          cp -r .next/static .next/standalone/.next/static
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-app
-          path: .next/standalone
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: node-app
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -65,7 +38,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
       - name: Disable Oryx build on Azure
-        run: az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false WEBSITE_RUN_FROM_PACKAGE=0
+        run: az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false
 
       - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
@@ -74,4 +47,4 @@ jobs:
           app-name: "pdfixFront"
           slot-name: "Production"
           package: .
-          startup-command: "node server.js"
+          startup-command: "npm start"
