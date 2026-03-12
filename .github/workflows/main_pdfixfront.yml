@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "24.x"
@@ -31,22 +31,13 @@ jobs:
       - name: Build Next.js application
         run: npm run build
 
-      - name: Prepare deployment package
+      - name: Prepare standalone output
         run: |
           mkdir -p deploy
           cp -r .next/standalone/* deploy/
           cp -r .next/static deploy/.next/
           cp -r public deploy/
           cp package*.json deploy/
-
-      - name: Remove node_modules and source before deploy
-        run: rm -rf node_modules src .git
-
-      - name: Copy deployment to root
-        run: |
-          rm -rf .next src
-          cp -r deploy/* .
-          rm -rf deploy
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -55,14 +46,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: Disable Oryx build on Azure
-        run: az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false
-
-      - name: "Deploy to Azure Web App"
-        id: deploy-to-webapp
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: "pdfixFront"
           slot-name: "Production"
-          package: .
+          package: deploy
           startup-command: "node server.js"
