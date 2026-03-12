@@ -68,8 +68,10 @@ jobs:
       - name: Stop App Service
         run: az webapp stop --name pdfixFront --resource-group development
 
-      - name: Deploy to Azure Web App (Classic Zip Deploy)
-        run: az webapp deployment source config-zip --name pdfixFront --resource-group development --src deploy.zip
+      - name: Deploy to Azure Web App (Legacy Zip)
+        run: |
+          az webapp deployment authentication set --name pdfixFront --resource-group development --username pdfixUser --password ${{ secrets.AZUREAPPSERVICE_CLIENTID_3E60A13A35334813AA8C8227A6DD6C76 }} || true
+          az webapp deployment source config-zip --name pdfixFront --resource-group development --src deploy.zip
         timeout-minutes: 20
 
       - name: Start App Service
