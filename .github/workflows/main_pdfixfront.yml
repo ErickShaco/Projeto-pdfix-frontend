@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24.x" 
+          node-version: "24.x"
           cache: "npm"
 
       - name: Install dependencies
@@ -62,14 +62,13 @@ jobs:
 
       - name: Configure App Service settings
         run: |
-          az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
-          az webapp config appsettings delete --name pdfixFront --resource-group development --setting-names WEBSITE_RUN_FROM_PACKAGE POST_BUILD_COMMAND 2>/dev/null || true
+          az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false WEBSITE_RUN_FROM_PACKAGE=1
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'pdfixFront'
-          package: './deploy.zip'
+      - name: Deploy to Azure Web App (Classic Zip Deploy)
+        run: az webapp deployment source config-zip --name pdfixFront --resource-group development --src deploy.zip
 
       - name: Set startup command
         run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
+
+      - name: Restart App Service
+        run: az webapp restart --name pdfixFront --resource-group development
