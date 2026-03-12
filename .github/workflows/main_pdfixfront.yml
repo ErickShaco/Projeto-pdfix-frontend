@@ -63,14 +63,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: Stop App Service
-        run: az webapp stop --name pdfixFront --resource-group development
-
       - name: Deploy to Azure Web App
-        run: az webapp deploy --name pdfixFront --resource-group development --src-path deploy.zip --type zip --clean true
+        run: az webapp deploy --name pdfixFront --resource-group development --src-path deploy.zip --type zip
 
       - name: Set startup command
         run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
 
-      - name: Start App Service
-        run: az webapp start --name pdfixFront --resource-group development
+      - name: Restart App Service
+        run: az webapp restart --name pdfixFront --resource-group development
