@@ -47,9 +47,11 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: "pdfixFront"
-          slot-name: "Production"
-          package: deploy
-          startup-command: "node server.js"
+        run: |
+          cd deploy
+          zip -r ../app.zip .
+          cd ..
+          az webapp deploy --name pdfixFront --resource-group development --src-path app.zip --type zip --async true
+
+      - name: Set startup command
+        run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
