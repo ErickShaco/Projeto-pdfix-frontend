@@ -72,3 +72,5 @@ jobs:
           slot-name: "Production"
           package: .
           startup-command: "node server.js"
+        env:
+          SCM_DO_BUILD_DURING_DEPLOYMENT: "false"
