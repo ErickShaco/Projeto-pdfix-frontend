@@ -1,4 +1,4 @@
-name: Build and deploy Node.js app to Azure Web App - pdfixFront
+name: Build and Deploy to Azure (Docker Container)
 
 on:
   push:
@@ -6,53 +6,58 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  AZURE_WEBAPP_NAME: pdfixFront
+  AZURE_RESOURCE_GROUP: development
+
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
+    
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          node-version: "24.x"
-          cache: "npm"
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-
-      - name: Build Next.js application
-        run: npm run build
-
-      - name: Prepare standalone package
-        run: |
-          cp -r public .next/standalone/public
-          cp -r .next/static .next/standalone/.next/static
-
-      - name: Create deployment zip
-        run: |
-          cd .next/standalone
-          zip -r ../../deploy.zip .
-
-      - name: Upload deployment artifact
-        uses: actions/upload-artifact@v4
+      - name: Build and push Docker image
+        id: docker_build
+        uses: docker/build-push-action@v5
         with:
-          name: deploy-package
-          path: deploy.zip
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set image output
+        id: image
+        run: echo "image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_OUTPUT
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-push
     permissions:
       id-token: write
-      contents: read
-
+    
     steps:
-      - name: Download deployment artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: deploy-package
-
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -60,22 +65,38 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: Configure App Service settings
+      - name: Clean up old deployment settings
         run: |
-          az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
-          az webapp config appsettings delete --name pdfixFront --resource-group development --setting-names WEBSITE_RUN_FROM_PACKAGE POST_BUILD_COMMAND 2>/dev/null || true
+          az webapp config appsettings set --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
+          az webapp config appsettings delete --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --setting-names WEBSITE_RUN_FROM_PACKAGE POST_BUILD_COMMAND 2>/dev/null || true
 
-      - name: Stop App Service
-        run: az webapp stop --name pdfixFront --resource-group development
-
-      - name: Deploy to Azure Web App (Legacy Zip)
+      - name: Configure Docker container
         run: |
-          az webapp deployment authentication set --name pdfixFront --resource-group development --username pdfixUser --password ${{ secrets.AZUREAPPSERVICE_CLIENTID_3E60A13A35334813AA8C8227A6DD6C76 }} || true
-          az webapp deployment source config-zip --name pdfixFront --resource-group development --src deploy.zip
-        timeout-minutes: 20
+          az webapp config container set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --docker-custom-image-name ${{ needs.build-and-push.outputs.image }} \
+            --docker-registry-server-url https://${{ env.REGISTRY }} \
+            --docker-registry-server-user ${{ github.actor }} \
+            --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Start App Service
-        run: az webapp start --name pdfixFront --resource-group development
+      - name: Set port configuration
+        run: |
+          az webapp config appsettings set \
+            --name ${{ env.AZURE_WEBAPP_NAME }} \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --settings WEBSITES_PORT=8080
 
-      - name: Set startup command
-        run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
+      - name: Restart Web App
+        run: |
+          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }}
+
+      - name: Wait for app to start
+        run: sleep 10
+
+      - name: Verify deployment
+        run: |
+          STATUS=$(az webapp show --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.AZURE_RESOURCE_GROUP }} --query "state" -o tsv)
+          echo "App Service Status: $STATUS"
