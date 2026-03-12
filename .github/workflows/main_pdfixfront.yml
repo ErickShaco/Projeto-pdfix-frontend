@@ -31,6 +31,23 @@ jobs:
       - name: Build Next.js application
         run: npm run build
 
+      - name: Prepare deployment package
+        run: |
+          mkdir -p deploy
+          cp -r .next/standalone/* deploy/
+          cp -r .next/static deploy/.next/
+          cp -r public deploy/
+          cp package*.json deploy/
+
+      - name: Remove node_modules and source before deploy
+        run: rm -rf node_modules src .git
+
+      - name: Copy deployment to root
+        run: |
+          rm -rf .next src
+          cp -r deploy/* .
+          rm -rf deploy
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -48,4 +65,4 @@ jobs:
           app-name: "pdfixFront"
           slot-name: "Production"
           package: .
-          startup-command: "npm start"
+          startup-command: "node server.js"
