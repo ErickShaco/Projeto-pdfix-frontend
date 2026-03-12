@@ -9,16 +9,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: "24.x" 
           cache: "npm"
 
       - name: Install dependencies
@@ -55,7 +52,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: deploy-package
-          # O arquivo deploy.zip será baixado aqui
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -64,12 +60,11 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: "Deploy to Azure Web App"
+      - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         with:
-          # Use o nome completo que aparece no portal da Azure
-          app-name: "pdfixfront-bffbeuand3evcpfn"
-          package: "./deploy.zip" # Envie o ZIP diretamente, não a pasta
+          app-name: 'pdfixFront' # Nome exato que está no seu print
+          package: './deploy.zip'
 
       - name: Set startup command
-        run: az webapp config set --name pdfixfront-bffbeuand3evcpfn --resource-group development --startup-file "node server.js"
+        run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
