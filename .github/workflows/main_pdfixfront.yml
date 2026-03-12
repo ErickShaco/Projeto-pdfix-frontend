@@ -60,10 +60,15 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Configure App Service settings
+        run: |
+          az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
+          az webapp config appsettings delete --name pdfixFront --resource-group development --setting-names WEBSITE_RUN_FROM_PACKAGE POST_BUILD_COMMAND 2>/dev/null || true
+
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'pdfixFront' # Nome exato que está no seu print
+          app-name: 'pdfixFront'
           package: './deploy.zip'
 
       - name: Set startup command
