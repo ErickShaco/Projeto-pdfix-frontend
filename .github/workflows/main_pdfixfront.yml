@@ -58,11 +58,11 @@ jobs:
         with:
           name: deploy-package
 
-      - name: Verify artifact
+      - name: Extract deployment package
         run: |
-          ls -la
-          file deploy.zip
-          unzip -l deploy.zip | head -30
+          mkdir deploy
+          cd deploy
+          unzip ../deploy.zip
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -71,13 +71,13 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: Configure App Service settings
-        run: |
-          az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false ENABLE_ORYX_BUILD=false
-          az webapp config appsettings delete --name pdfixFront --resource-group development --setting-names POST_BUILD_COMMAND 2>/dev/null || true
-
       - name: Deploy to Azure Web App
-        run: az webapp deploy --name pdfixFront --resource-group development --src-path deploy.zip --type zip
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: "pdfixFront"
+          slot-name: "Production"
+          package: deploy
+          startup-command: "node server.js"
 
       - name: Set startup command
         run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
