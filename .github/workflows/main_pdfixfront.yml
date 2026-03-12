@@ -49,20 +49,13 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Download deployment artifact
         uses: actions/download-artifact@v4
         with:
           name: deploy-package
-
-      - name: Extract deployment package
-        run: |
-          mkdir deploy
-          cd deploy
-          unzip ../deploy.zip
+          # O arquivo deploy.zip será baixado aqui
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -71,16 +64,12 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E60B3DF1A2142CCB6FBBEE1AC811648 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
-      - name: Deploy to Azure Web App
+      - name: "Deploy to Azure Web App"
         uses: azure/webapps-deploy@v3
         with:
-          app-name: "pdfixFront"
-          slot-name: "Production"
-          package: deploy
-          startup-command: "node server.js"
+          # Use o nome completo que aparece no portal da Azure
+          app-name: "pdfixfront-bffbeuand3evcpfn"
+          package: "./deploy.zip" # Envie o ZIP diretamente, não a pasta
 
       - name: Set startup command
-        run: az webapp config set --name pdfixFront --resource-group development --startup-file "node server.js"
-
-      - name: Restart App Service
-        run: az webapp restart --name pdfixFront --resource-group development
+        run: az webapp config set --name pdfixfront-bffbeuand3evcpfn --resource-group development --startup-file "node server.js"
