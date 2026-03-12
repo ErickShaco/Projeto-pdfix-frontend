@@ -32,14 +32,14 @@ jobs:
 
       - name: Prepare standalone output
         run: |
-          cp -r public .next/standalone/Projeto-pdfix-frontend/public
-          cp -r .next/static .next/standalone/Projeto-pdfix-frontend/.next/static
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .next/standalone/Projeto-pdfix-frontend
+          path: .next/standalone
 
   deploy:
     runs-on: ubuntu-latest
@@ -68,4 +68,3 @@ jobs:
           app-name: 'pdfixFront'
           slot-name: 'Production'
           package: .
-          startup-command: 'node server.js'
