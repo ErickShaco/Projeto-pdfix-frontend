@@ -65,7 +65,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7AB7F01EA6664FDBBEF7D0A3DFDE4656 }}
 
       - name: Disable Oryx build on Azure
-        run: az webapp config appsettings set --name pdfixFront --resource-group $(az webapp show --name pdfixFront --query resourceGroup -o tsv) --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false WEBSITE_RUN_FROM_PACKAGE=0
+        run: az webapp config appsettings set --name pdfixFront --resource-group development --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false WEBSITE_RUN_FROM_PACKAGE=0
 
       - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
